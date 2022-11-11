@@ -24,10 +24,10 @@ recipe.get('/', async(req,res) => {
 })
 
 //SHOW Find a specific Recipe returns steps ingredients and quantity in adition to recipe values 
-recipe.get('/:name', async(req,res) => {
+recipe.get('/:id', async(req,res) => {
     try {
         const foundRecipe = await Recipes.findOne({
-            where: { recipe_id: req.params.name},
+            where: { recipe_id: req.params.id},
             include:[
                 {
                 model:Ingredients,
@@ -88,7 +88,7 @@ recipe.post('/', async (req,res)=>{
                 }
             )
         })
-        //adds all ingredient objects to the database
+       // adds all ingredient objects to the database
         const bulkIngredients = await Ingredients.bulkCreate(ingredientsArr)
 
         const recipeIngredientArr = await response.quantity.map((value,i) =>{
@@ -103,10 +103,11 @@ recipe.post('/', async (req,res)=>{
 
         const bulkRecipeIngredient = await Recipe_ingredient.bulkCreate(recipeIngredientArr)
   
-        res.status(200).json({
-            message:"that worked",
-            data:[newRecipe,bulkSteps,bulkIngredients,bulkRecipeIngredient]
-        })
+        // res.status(200).json({
+        //     message:"that worked",
+        //     data:[newRecipe,bulkSteps,bulkIngredients,bulkRecipeIngredient]
+        // })
+        res.redirect("http://localhost:3000/")
     }catch(err){
         console.log(err)
     }
