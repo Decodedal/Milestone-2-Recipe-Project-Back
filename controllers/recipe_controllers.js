@@ -105,16 +105,16 @@ recipe.post('/', async (req,res)=>{
   
         // res.status(200).json({
         //     message:"that worked",
-        //     data:[newRecipe,bulkSteps,bulkIngredients,bulkRecipeIngredient]
+        //     data:[response]
         // })
-        res.redirect("http://localhost:3000/")
+        //res.redirect("http://localhost:3000/")
     }catch(err){
         console.log(err)
     }
 })
 
 //UPDATE
-recipe.put('/:name/edit', async (req, res) => {
+recipe.put('/:id/edit', async (req, res) => {
     try {
         
         const updating = await Recipes.update(
@@ -124,7 +124,7 @@ recipe.put('/:name/edit', async (req, res) => {
               description: req.body.description
             }, {
             where: {
-                recipe_id: req.body.recipe_id
+                recipe_id: req.params.id
             }
         })
     //     updating ingredients
@@ -143,7 +143,7 @@ recipe.put('/:name/edit', async (req, res) => {
         await req.body.step_body.forEach((step,index) =>{
             Steps.findOrCreate(
                 {where: 
-                    {recipe_id : req.body.recipe_id,
+                    {recipe_id : req.params.id,
                         step_number : index + 1
                         },
                 defaults:{
@@ -153,7 +153,7 @@ recipe.put('/:name/edit', async (req, res) => {
             )     
             Steps.update({ step_body: step}
                 ,{ where: 
-                    {recipe_id : req.body.recipe_id,
+                    {recipe_id : req.params.id,
                     step_number : index + 1}
                 },
             )
