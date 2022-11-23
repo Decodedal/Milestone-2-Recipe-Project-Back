@@ -107,17 +107,18 @@ recipe.post('/', async (req,res)=>{
         //     message:"that worked",
         //     data:[response]
         // })
-        //res.redirect("http://localhost:3000/")
+        res.redirect("http://localhost:3000/")
     }catch(err){
         console.log(err)
     }
 })
 
 //UPDATE
-recipe.put('/:id/edit', async (req, res) => {
+recipe.put('/:id', async (req, res) => {
     try {
+        const response = await req.body
         
-        const updating = await Recipes.update(
+        const update_main = await Recipes.update(
             { author: req.body.author,
               image: req.body.image,
               title: req.body.title,
@@ -127,57 +128,67 @@ recipe.put('/:id/edit', async (req, res) => {
                 recipe_id: req.params.id
             }
         })
-    //     updating ingredients
-    await Ingredients.findOrCreate(
-            {where:  {name: req.body.name}
-                    }
-        )    
-    //       updating steps
-    // await Steps.update({step_body: req.body.step_body_1
-    // },  {
-    //     where:  { step_number: 1,
-    //         recipe_id: req.body.recipe_id
-    //     }
-    //             }
-    // )               
-        await req.body.step_body.forEach((step,index) =>{
-            Steps.findOrCreate(
-                {where: 
-                    {recipe_id : req.params.id,
-                        step_number : index + 1
-                        },
-                defaults:{
-                            step_body:step
+            //creates an array of all our added steps refencing the created recipe id 
+            const stepsArr = await response.step_body.map((value,i) =>{
+                //sets i to be 1 for the first value and then goes up from there   
+                   i++
+                   return(
+                       {
+                           step_body: value,
+                           step_number: i,
+                           recipe_id:req.params.id
+                       }
+                   )
+               })
+              //clear all old steps
+               const deleteSteps = await Steps.destroy({
+                where: {
+                    recipe_id: req.params.id
+                }
+            })
+
+               //bulk creates all the new steps
+            const bulkSteps = await Steps.bulkCreate(
+                stepsArr,
+                {
+                    updateOnDuplicate : ["step_body"]
+                }
+                 )
+                //create an array of updated ingredents
+                 const ingredientsArr = await response.name.map(value =>{
+                    return(
+                        {
+                            name:value
                         }
-                },
-            )     
-            Steps.update({ step_body: step}
-                ,{ where: 
-                    {recipe_id : req.params.id,
-                    step_number : index + 1}
-                },
-            )
-        })
-        //destroy current steps above length of entry
-        await Steps.destroy(
-                    {
-                        where:{ recipe_id: req.body.recipe_id,
-                            step_number: {[Op.gt]:req.body.step_body.length}
+                    )
+                })
+
+                const deleteRecipeIngredient = await Recipe_ingredient.destroy({
+                    where: {
+                        recipe_id: req.params.id
                     }
                 })
-        // update quatity
-        await Recipe_ingredient.update(
-            { quantity: req.body.quantity
-            }, {
-            where: {
-                recipe_id: req.body.recipe_id,
-                ingredient_id: req.body.ingredient_id
-            }
-        });
 
-        res.status(200).json({
-            message: `Successfully updated ${req.body.title} recipe(s)`
-        })
+               // adds all ingredient objects to the database
+                const bulkIngredients = await Ingredients.bulkCreate(ingredientsArr)
+
+                const recipeIngredientArr = await response.quantity.map((value,i) =>{
+                    return(
+                        {
+                          recipe_id:req.params.id,
+                          ingredient_id:bulkIngredients[i].ingredient_id,
+                          quantity:value  
+                        }
+                    )
+                })
+        
+                const bulkRecipeIngredient = await Recipe_ingredient.bulkCreate(recipeIngredientArr)
+          
+
+    res.redirect(`http://localhost:3000/recipe/${req.params.id}`)
+        // res.status(200).json({
+        //     message: bulkSteps, bulkRecipeIngredient
+        // })
     } catch(err) {
         res.status(500).json(err)
     }
