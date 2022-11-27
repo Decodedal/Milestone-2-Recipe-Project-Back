@@ -30,7 +30,23 @@ module.exports = {
     step_body:"put hot dogs on buns and serve",
     recipe_id:2
 
-  }], {});
+  },
+  {
+    step_number:1,
+    step_body:"Shuck some oysters",
+    recipe_id:3
+  },
+  {
+    step_number:2,
+    step_body:"squeeze some lemmon and add a little salt and pepper",
+    recipe_id:3
+  },
+  {
+    step_number:3,
+    step_body:"serve over ice",
+    recipe_id:3
+  }
+], {});
   },
 
   async down (queryInterface, Sequelize) {

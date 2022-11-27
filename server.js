@@ -13,6 +13,7 @@ app.use(methodOverride('_method'))
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
 app.use(cors())
+const sequelize = new Sequelize(process.env.PG_URI)
 
 //ROOT 
 app.get('/',(req, res)=>{
