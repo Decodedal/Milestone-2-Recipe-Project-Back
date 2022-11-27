@@ -25,7 +25,7 @@ const recipeController = require('./controllers/recipe_controllers')
 app.use('/recipe',recipeController)
 
 //LISTEN
-app.listen(process.env.PORT, ()=>{
-    console.log(` 🍳 cooking on port: ${process.env.PORT} `)
+app.listen(4000, ()=>{
+    console.log(` 🍳 cooking on port: 4000 `)
     
 })
