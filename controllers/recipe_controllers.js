@@ -185,7 +185,7 @@ recipe.put('/:id', async (req, res) => {
                 const bulkRecipeIngredient = await Recipe_ingredient.bulkCreate(recipeIngredientArr)
           
 
-    res.redirect(`https://what-the-chef.herokuapp.com//recipe/${req.params.id}`)
+    res.redirect(`https://what-the-chef.herokuapp.com/recipe/${req.params.id}`)
         // res.status(200).json({
         //     message: bulkSteps, bulkRecipeIngredient
         // })
